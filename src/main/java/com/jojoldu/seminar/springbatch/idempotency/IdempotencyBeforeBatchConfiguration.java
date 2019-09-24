@@ -25,6 +25,7 @@ import java.util.Map;
 @Configuration
 public class IdempotencyBeforeBatchConfiguration {
     public static final String BATCH_NAME = "idempotencyBeforeBatch";
+    public static final String JOB_NAME = BATCH_NAME +"_job";
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -33,9 +34,9 @@ public class IdempotencyBeforeBatchConfiguration {
     @Value("${chunkSize:1000}")
     private int chunkSize;
 
-    @Bean(name = BATCH_NAME +"_job")
+    @Bean(name = JOB_NAME)
     public Job job() {
-        return jobBuilderFactory.get(BATCH_NAME +"_job")
+        return jobBuilderFactory.get(JOB_NAME)
                 .start(step())
                 .build();
     }

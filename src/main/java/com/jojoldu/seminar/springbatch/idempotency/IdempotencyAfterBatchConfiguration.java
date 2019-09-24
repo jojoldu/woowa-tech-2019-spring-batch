@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 @Configuration
 public class IdempotencyAfterBatchConfiguration {
     public static final String BATCH_NAME = "idempotencyAfterBatch";
+    public static final String JOB_NAME = BATCH_NAME +"_job";
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -33,9 +35,9 @@ public class IdempotencyAfterBatchConfiguration {
     @Value("${chunkSize:1000}")
     private int chunkSize;
 
-    @Bean(name = BATCH_NAME +"_job")
+    @Bean(name = JOB_NAME)
     public Job job() {
-        return jobBuilderFactory.get(BATCH_NAME +"_job")
+        return jobBuilderFactory.get(JOB_NAME)
                 .start(step())
                 .build();
     }
@@ -44,24 +46,22 @@ public class IdempotencyAfterBatchConfiguration {
     public Step step() {
         return stepBuilderFactory.get(BATCH_NAME +"_step")
                 .<Product, Product>chunk(chunkSize)
-                .reader(reader())
+                .reader(reader(null))
                 .writer(writer())
                 .build();
     }
 
     @Bean(name = BATCH_NAME +"_reader")
     @StepScope
-    public JpaPagingItemReader<Product> reader() {
-
-        LocalDate now = LocalDate.now();
+    public JpaPagingItemReader<Product> reader(@Value("#{jobParameters[createDate]}") String createDate) {
         Map<String, Object> params = new HashMap<>();
-        params.put("now", now);
+        params.put("createDate", LocalDate.parse(createDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         return new JpaPagingItemReaderBuilder<Product>()
                 .name(BATCH_NAME +"_reader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(chunkSize)
-                .queryString("SELECT p FROM Product p WHERE p.createDate =:now")
+                .queryString("SELECT p FROM Product p WHERE p.createDate =:createDate")
                 .parameterValues(params)
                 .build();
     }

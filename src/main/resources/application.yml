@@ -1,0 +1,8 @@
+spring:
+  batch.job.names: ${job.name:NONE}
+
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+      hibernate.hbm2ddl.import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+      hibernate.default_batch_fetch_size: ${chunkSize:1000}
