@@ -21,6 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.time.format.DateTimeFormatter.ofPattern;
+
 @Slf4j // log 사용을 위한 lombok 어노테이션
 @RequiredArgsConstructor // 생성자 DI를 위한 lombok 어노테이션
 @Configuration
@@ -53,9 +55,11 @@ public class IdempotencyAfterBatchConfiguration {
 
     @Bean(name = BATCH_NAME +"_reader")
     @StepScope
-    public JpaPagingItemReader<Product> reader(@Value("#{jobParameters[createDate]}") String createDate) {
+    public JpaPagingItemReader<Product> reader(
+            @Value("#{jobParameters[createDate]}") String createDate) {
+
         Map<String, Object> params = new HashMap<>();
-        params.put("createDate", LocalDate.parse(createDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        params.put("createDate", LocalDate.parse(createDate, ofPattern("yyyy-MM-dd")));
 
         return new JpaPagingItemReaderBuilder<Product>()
                 .name(BATCH_NAME +"_reader")
