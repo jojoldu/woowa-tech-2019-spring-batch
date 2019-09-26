@@ -32,7 +32,14 @@ public class JobParameterBatchConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
+
     private final CreateDateJobParameter jobParameter;
+
+    @Bean(BATCH_NAME + "jobParameter")
+    @JobScope
+    public CreateDateJobParameter jobParameter() {
+        return new CreateDateJobParameter();
+    }
 
     @Value("${chunkSize:1000}")
     private int chunkSize;
@@ -42,12 +49,6 @@ public class JobParameterBatchConfiguration {
         return jobBuilderFactory.get(JOB_NAME)
                 .start(step())
                 .build();
-    }
-
-    @Bean(BATCH_NAME + "jobParameter")
-    @JobScope
-    public CreateDateJobParameter jobParameter() {
-        return new CreateDateJobParameter();
     }
 
     @Bean(name = BATCH_NAME +"_step")
