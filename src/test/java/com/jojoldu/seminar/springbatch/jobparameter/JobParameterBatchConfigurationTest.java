@@ -22,17 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class JobParameterBatchConfigurationTest {
-
-    @Autowired
-    private JobTestUtils jobTestUtils;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @After
-    public void tearDown() throws Exception {
-        productRepository.deleteAll();
-    }
+    @Autowired private JobTestUtils jobTestUtils;
+    @Autowired private ProductRepository productRepository;
 
     @Test
     public void jobParameter정상출력_확인() throws Exception{
@@ -50,4 +41,7 @@ public class JobParameterBatchConfigurationTest {
         //then
         assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
     }
+
+    @After
+    public void tearDown() throws Exception { productRepository.deleteAll(); }
 }
